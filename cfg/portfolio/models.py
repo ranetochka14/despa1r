@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Project(models.Model):
@@ -82,3 +83,34 @@ class ContentBlock(models.Model):
 
     def __str__(self):
         return f"{self.project.title} — {self.get_content_type_display()}"
+
+
+class TodoCategory(models.Model):
+    name = models.CharField("Имя категории дел", max_length=100)
+
+    class Meta:
+        verbose_name = "Категория дел"
+        verbose_name_plural = "Категории дел"
+
+    def __str__(self):
+        return self.name
+
+
+class TodoList(models.Model):
+    title = models.CharField("Заголовок задачи", max_length=250)
+    content = models.TextField("Описание", blank=True)
+    created = models.DateField("Дата создания", default=timezone.now)
+    due_date = models.DateField("Срок выполнения")
+    category = models.ForeignKey(
+        TodoCategory,
+        on_delete=models.PROTECT,
+        verbose_name="Категория"
+    )
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name = "Задача"
+        verbose_name_plural = "Список задач"
+
+    def __str__(self):
+        return self.title
